@@ -1,58 +1,63 @@
 {
-  "name": "gwtree",
-  "version": "1.0.0",
-  "description": "Git worktree manager for parallel development",
-  "type": "module",
-  "main": "./dist/index.js",
-  "bin": {
-    "gwtree": "./dist/index.js",
-    "gwt": "./dist/index.js"
-  },
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "test": "vitest",
-    "prepublishOnly": "pnpm build",
-    "release": "./scripts/release.sh"
-  },
-  "keywords": [
-    "git",
-    "worktree",
-    "cli",
-    "parallel",
-    "development",
-    "coding-agents",
-    "claude",
-    "cursor",
-    "workflow"
-  ],
-  "author": "Ahmad Awais <me@AhmadAwais.com> (https://x.com/_AhmadAwais)",
-  "license": "MIT",
-  "files": [
-    "dist"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ahmadawais/gwtree.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ahmadawais/gwtree/issues"
-  },
-  "homepage": "https://github.com/ahmadawais/gwtree#readme",
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "packageManager": "pnpm@10.8.1",
-  "devDependencies": {
-    "@types/node": "^24.10.1",
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.8"
-  },
-  "dependencies": {
-    "@clack/prompts": "^0.11.0",
-    "chalk": "^5.6.2",
-    "commander": "^14.0.2",
-    "conf": "^15.0.2"
-  }
+	"name": "gwtree",
+	"version": "1.0.0",
+	"description": "Git worktree manager for parallel development",
+	"type": "module",
+	"main": "./dist/index.js",
+	"bin": {
+		"gwtree": "./dist/index.js",
+		"gwt": "./dist/index.js"
+	},
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"test": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"test:ui": "vitest --ui",
+		"prepublishOnly": "pnpm build",
+		"release": "./scripts/release.sh"
+	},
+	"keywords": [
+		"git",
+		"worktree",
+		"cli",
+		"parallel",
+		"development",
+		"coding-agents",
+		"command",
+		"claude",
+		"cursor",
+		"workflow"
+	],
+	"author": "Ahmad Awais <me@AhmadAwais.com> (https://x.com/_AhmadAwais)",
+	"license": "MIT",
+	"files": [
+		"dist"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ahmadawais/gwtree.git"
+	},
+	"bugs": {
+		"url": "https://github.com/ahmadawais/gwtree/issues"
+	},
+	"homepage": "https://github.com/ahmadawais/gwtree#readme",
+	"engines": {
+		"node": ">=18.0.0"
+	},
+	"packageManager": "pnpm@10.8.1",
+	"devDependencies": {
+		"@types/node": "^24.10.1",
+		"@vitest/coverage-v8": "^4.0.9",
+		"@vitest/ui": "4.0.9",
+		"tsup": "^8.5.1",
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.9"
+	},
+	"dependencies": {
+		"@clack/prompts": "^0.11.0",
+		"chalk": "^5.6.2",
+		"commander": "^14.0.2",
+		"conf": "^15.0.2"
+	}
 }

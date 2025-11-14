@@ -1,5 +1,9 @@
 # GWTree
 
+[![Coverage](https://img.shields.io/badge/coverage-88.7%25-brightgreen.svg?style=flat-square)](https://github.com/ahmadawais/gwtree)
+[![Tests](https://img.shields.io/badge/tests-34%20passing-brightgreen.svg?style=flat-square)](https://github.com/ahmadawais/gwtree)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+
 > Git worktree manager for parallel development with coding agents
 
 Create and manage git worktrees effortlessly. Perfect for running multiple coding agents (Command, Claude, Cursor, etc.) in parallel on different branches.
