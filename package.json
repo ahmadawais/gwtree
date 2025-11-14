@@ -1,6 +1,6 @@
 {
   "name": "gwtree",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Git worktree manager for parallel development",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,11 +11,36 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest"
+    "test": "vitest",
+    "prepublishOnly": "pnpm build"
   },
-  "keywords": ["git", "worktree", "cli", "parallel", "development"],
+  "keywords": [
+    "git",
+    "worktree",
+    "cli",
+    "parallel",
+    "development",
+    "coding-agents",
+    "claude",
+    "cursor",
+    "workflow"
+  ],
   "author": "Ahmad Awais <me@AhmadAwais.com> (https://x.com/_AhmadAwais)",
-  "license": "UNLICENSED",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmadawais/gwtree.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ahmadawais/gwtree/issues"
+  },
+  "homepage": "https://github.com/ahmadawais/gwtree#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "packageManager": "pnpm@10.8.1",
   "devDependencies": {
     "@types/node": "^24.10.1",
@@ -25,6 +50,8 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.11.0",
-    "commander": "^14.0.2"
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "conf": "^15.0.2"
   }
 }
