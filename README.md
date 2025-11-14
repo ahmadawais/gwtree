@@ -76,11 +76,11 @@ Defaults stored in `~/.config/gwtree/config.json`:
 ## Why GWTree?
 
 Perfect for parallel development workflows:
-- Run Claude and Cursor simultaneously on different features
+- Run Command Code, Claude and Codex simultaneously on different features
 - Test changes across multiple branches
 - Keep main branch clean while experimenting
 - Quick context switching without stashing
 
 ## License
 
-UNLICENSED
+MIT License © 2025 Ahmad Awais

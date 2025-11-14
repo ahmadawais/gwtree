@@ -12,7 +12,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build",
+    "release": "./scripts/release.sh"
   },
   "keywords": [
     "git",
