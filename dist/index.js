@@ -354,7 +354,7 @@ var banner = `
  \u255A\u2550\u2550\u2550\u2550\u2550\u255D  \u255A\u2550\u2550\u255D\u255A\u2550\u2550\u255D    \u255A\u2550\u255D   
 `;
 console.log(banner);
-program.name("gwtree").description("Git worktree manager for parallel development").version("1.1.0", "-v, --version", "Output the version number").helpOption("-h, --help", "Display help for command");
+program.name("gwtree").description("Git worktree manager for parallel development").version("1.1.2", "-v, --version", "Output the version number").helpOption("-h, --help", "Display help for command");
 program.command("create", { isDefault: true }).description("Create a new git worktree").action(createWorktree);
 program.command("list").alias("ls").description("List all git worktrees").action(listWorktrees);
 program.command("remove").alias("rm").description("Remove a git worktree").action(removeWorktree);

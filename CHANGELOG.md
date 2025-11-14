@@ -2,51 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.1.2] - 2025-11-14
+
+### Added
+- Project image asset
+
+### Changed
+- Updated README with image banner
+
+## [1.1.1] - 2025-11-14
+
+### Changed
+- Redesigned README with clean minimal Apple-like aesthetic
+
 ## [1.1.0] - 2025-11-14
 
 ### Added
-- ✅ Comprehensive Vitest test suite with 88.7% coverage
-- 📊 Coverage reporting with V8 provider
-- 🧪 34 passing tests across all features
-- 📈 Coverage badges in README (flat square style)
-- 🎯 Test coverage for config, create, list, remove commands
-- 🔧 Vitest configuration with multiple reporters
-- 📝 Test scripts: `test`, `test:coverage`, `test:ui`
+- Comprehensive Vitest test suite with 88.7% coverage
+- 34 passing tests across all core functionality
 
-### Improved
-- 🛡️ Better code reliability with comprehensive tests
-- 📚 Enhanced documentation with coverage metrics
-- 🔍 Better error handling validation through tests
+### Changed
+- Improved command lingo and user-facing text
+- Enhanced documentation clarity
 
 ## [1.0.0] - 2025-11-14
 
 ### Added
-- 🚀 Initial release of GWTree
-- ✨ Interactive worktree creation with smart defaults
-- 🎯 Quick suffix editing with ESC for full name customization
-- 🔍 List and manage worktrees interactively
-- 🗑️ Delete worktrees with confirmation
-- ⚙️ Configurable defaults via `~/.config/gwtree/config.json`
-- 🎨 Clean UX with dimmed prefixes and minimal prompts
-- 🔄 Auto branch creation with unique names
-- 📝 Support for VS Code, default editor, or no editor
-- 🌳 Smart branch selection (main/master default)
-- 🎨 ASCII banner for CLI branding
+- Initial release
+- Interactive worktree creation with smart defaults
+- List and delete worktrees interactively
+- Remove worktree command
+- Configurable defaults via `~/.config/gwtree/config.json`
+- Smart naming pattern: `{repo}-{branch}-wt-{suffix}`
+- Auto branch creation for unique worktree branches
+- Command aliases: `gwt`, `gwt ls`, `gwt rm`
+- Editor integration (VS Code, default editor)
+- Search and filter in worktree list
 
-### Features
-- `gwtree` / `gwt` - Create new worktree (default command)
-- `gwtree list` / `gwt ls` - List and manage worktrees
-- `gwtree remove` / `gwt rm` - Remove a worktree
-- Pattern-based naming: `{repo}-{branch}-wt-{suffix}`
-- Automatic branch conflict resolution
-- Interactive search and selection
-- ESC to cancel or switch to full edit mode
-
-### Configuration
-- Default branch choice (current/new)
-- Default suffix (customizable)
-- Default editor (code/default/none)
-- Name pattern template
-
-[1.1.0]: https://github.com/ahmadawais/gwtree/releases/tag/v1.1.0
-[1.0.0]: https://github.com/ahmadawais/gwtree/releases/tag/1.0.0
+[1.1.2]: https://github.com/ahmadawais/gwtree/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/ahmadawais/gwtree/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/ahmadawais/gwtree/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/ahmadawais/gwtree/releases/tag/v1.0.0

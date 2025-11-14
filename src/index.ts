@@ -21,7 +21,7 @@ console.log(banner);
 program
   .name('gwtree')
   .description('Git worktree manager for parallel development')
-  .version('1.1.0', '-v, --version', 'Output the version number')
+  .version('1.1.2', '-v, --version', 'Output the version number')
   .helpOption('-h, --help', 'Display help for command');
 
 program
