@@ -14,6 +14,8 @@
 		"test": "vitest",
 		"test:coverage": "vitest run --coverage",
 		"test:ui": "vitest --ui",
+		"format": "prettier --write src",
+		"format:check": "prettier --check src",
 		"prepublishOnly": "pnpm build",
 		"release": "./scripts/release.sh"
 	},
@@ -50,6 +52,7 @@
 		"@types/node": "^24.10.1",
 		"@vitest/coverage-v8": "^4.0.9",
 		"@vitest/ui": "4.0.9",
+		"prettier": "^3.6.2",
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.3",
 		"vitest": "^4.0.9"
