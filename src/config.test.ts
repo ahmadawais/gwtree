@@ -19,6 +19,7 @@ describe('config', () => {
 				defaultOpenEditor: true,
 				defaultEditor: 'code',
 				namePattern: '{repo}-{branch}-wt-{suffix}',
+				showRemoteBranches: true,
 			});
 		});
 
@@ -53,6 +54,11 @@ describe('config', () => {
 		it('should update namePattern', () => {
 			setConfig('namePattern', '{repo}-{suffix}');
 			expect(getConfig().namePattern).toBe('{repo}-{suffix}');
+		});
+
+		it('should update showRemoteBranches', () => {
+			setConfig('showRemoteBranches', false);
+			expect(getConfig().showRemoteBranches).toBe(false);
 		});
 	});
 

@@ -6,6 +6,7 @@ export interface GWTreeConfig {
 	defaultOpenEditor: boolean;
 	defaultEditor: 'code' | 'default' | 'none';
 	namePattern: string;
+	showRemoteBranches: boolean;
 }
 
 const schema = {
@@ -31,6 +32,10 @@ const schema = {
 		type: 'string',
 		default: '{repo}-{branch}-wt-{suffix}',
 	},
+	showRemoteBranches: {
+		type: 'boolean',
+		default: true,
+	},
 } as const;
 
 export const config = new Conf<GWTreeConfig>({
@@ -45,6 +50,7 @@ export function getConfig(): GWTreeConfig {
 		defaultOpenEditor: config.get('defaultOpenEditor'),
 		defaultEditor: config.get('defaultEditor'),
 		namePattern: config.get('namePattern'),
+		showRemoteBranches: config.get('showRemoteBranches'),
 	};
 }
 

@@ -1,47 +1,150 @@
 import * as p from '@clack/prompts';
-import {execSync} from 'child_process';
+import {exec} from 'child_process';
+import {promisify} from 'util';
 import {existsSync} from 'fs';
 import {join, dirname, basename} from 'path';
 import {getConfig} from '../config.js';
 import chalk from 'chalk';
+
+const execAsync = promisify(exec);
 
 export async function createWorktree() {
 	const userConfig = getConfig();
 	p.intro('Create Git Worktree');
 
 	try {
-		const gitRoot = execSync('git rev-parse --show-toplevel', {
-			encoding: 'utf-8',
-			stdio: ['pipe', 'pipe', 'pipe'],
-		}).trim();
+		const {stdout: gitRootRaw} = await execAsync(
+			'git rev-parse --show-toplevel',
+			{
+				encoding: 'utf-8',
+			},
+		);
+		const gitRoot = gitRootRaw.trim();
 
 		const repoName = basename(gitRoot);
 		const parentDir = dirname(gitRoot);
 
-		const currentBranch = execSync('git branch --show-current', {
-			encoding: 'utf-8',
-			cwd: gitRoot,
-		}).trim();
+		const {stdout: currentBranchRaw} = await execAsync(
+			'git branch --show-current',
+			{
+				encoding: 'utf-8',
+				cwd: gitRoot,
+			},
+		);
+		const currentBranch = currentBranchRaw.trim();
 
-		const branches = execSync('git branch --format="%(refname:short)"', {
-			encoding: 'utf-8',
-			cwd: gitRoot,
-		})
-			.trim()
-			.split('\n')
-			.filter(Boolean);
+		let hasRemote = false;
+		let remoteName = 'origin';
+
+		try {
+			const {stdout: remoteCheckRaw} = await execAsync('git remote', {
+				encoding: 'utf-8',
+				cwd: gitRoot,
+			});
+			const remoteCheck = remoteCheckRaw.trim();
+
+			if (remoteCheck.length > 0) {
+				hasRemote = true;
+				const remotes = remoteCheck.split('\n').filter(Boolean);
+				remoteName = remotes.includes('origin') ? 'origin' : remotes[0];
+			}
+		} catch (error) {
+			hasRemote = false;
+		}
+
+		if (hasRemote && userConfig.showRemoteBranches) {
+			const shouldFetch = await p.confirm({
+				message: `Fetch latest from "${remoteName}"?`,
+				initialValue: true,
+			});
+
+			if (!p.isCancel(shouldFetch) && shouldFetch) {
+				const fetchSpinner = p.spinner();
+				fetchSpinner.start(`Fetching from ${remoteName}...`);
+
+				try {
+					await execAsync(`git fetch ${remoteName}`, {
+						cwd: gitRoot,
+					});
+
+					fetchSpinner.stop(`Fetched from ${remoteName}`);
+				} catch (error) {
+					fetchSpinner.stop(`Failed to fetch from ${remoteName}`);
+				}
+			}
+		}
+
+		const {stdout: branchesRaw} = await execAsync(
+			'git branch --format="%(refname:short)"',
+			{
+				encoding: 'utf-8',
+				cwd: gitRoot,
+			},
+		);
+		const branches = branchesRaw.trim().split('\n').filter(Boolean);
+
+		let remoteBranches: string[] = [];
+
+		if (hasRemote && userConfig.showRemoteBranches) {
+			try {
+				const {stdout: remoteBranchListRaw} = await execAsync(
+					'git branch -r --format="%(refname:short)"',
+					{
+						encoding: 'utf-8',
+						cwd: gitRoot,
+					},
+				);
+				const remoteBranchList = remoteBranchListRaw
+					.trim()
+					.split('\n')
+					.filter(Boolean)
+					.filter(
+						b =>
+							!b.includes('HEAD ->') &&
+							b.startsWith(`${remoteName}/`),
+					);
+
+				remoteBranches = remoteBranchList;
+			} catch (error) {
+				remoteBranches = [];
+			}
+		}
 
 		const mainBranch =
 			branches.find(b => b === 'main' || b === 'master') || currentBranch;
 
+		const branchOptions: Array<{
+			value: string;
+			label: string;
+			hint?: string;
+		}> = [
+			{value: 'new', label: 'Create new branch'},
+			{
+				value: '__local_separator__',
+				label: '-- ↓ Local Branches ↓ --',
+				hint: '',
+			} as any,
+			{value: mainBranch, label: mainBranch, hint: 'local'},
+		];
+
+		if (remoteBranches.length > 0) {
+			branchOptions.push({
+				value: '__remote_separator__',
+				label: '-- ↓ Remote Branches ↓ --',
+				hint: '',
+			} as any);
+			remoteBranches.forEach(remoteBranch => {
+				branchOptions.push({
+					value: remoteBranch,
+					label: remoteBranch.replace(`${remoteName}/`, ''),
+					hint: 'remote',
+				});
+			});
+		}
+
 		const branchChoice = await p.select({
 			message: 'Branch:',
-			options: [
-				{value: mainBranch, label: mainBranch},
-				{value: 'new', label: 'Create new branch'},
-			],
-			initialValue:
-				userConfig.defaultBranchChoice === 'new' ? 'new' : mainBranch,
+			options: branchOptions,
 		});
 
 		if (p.isCancel(branchChoice)) {
@@ -49,8 +152,18 @@ export async function createWorktree() {
 			process.exit(0);
 		}
 
+		// Skip if separator was somehow selected
+		if (
+			branchChoice === '__local_separator__' ||
+			branchChoice === '__remote_separator__'
+		) {
+			p.cancel('Invalid selection');
+			process.exit(0);
+		}
+
 		let branchName: string;
 		let baseBranch: string;
+		let isRemoteBranch = false;
 
 		if (branchChoice === 'new') {
 			const newBranchName = await p.text({
@@ -70,6 +183,13 @@ export async function createWorktree() {
 
 			branchName = newBranchName as string;
 			baseBranch = currentBranch;
+		} else if (
+			typeof branchChoice === 'string' &&
+			branchChoice.includes('/')
+		) {
+			isRemoteBranch = true;
+			branchName = (branchChoice as string).split('/').slice(1).join('/');
+			baseBranch = branchChoice as string;
 		} else {
 			branchName = branchChoice as string;
 			baseBranch = branchChoice as string;
@@ -114,21 +234,22 @@ export async function createWorktree() {
 			process.exit(1);
 		}
 
-		if (p.isCancel(worktreeName)) {
-			p.cancel('Operation cancelled');
-			process.exit(0);
-		}
-
 		const s = p.spinner();
 		s.start('Creating worktree...');
 
 		try {
 			if (branchChoice === 'new') {
-				execSync(
+				await execAsync(
 					`git worktree add -b "${branchName}" "${worktreePath}" "${baseBranch}"`,
 					{
 						cwd: gitRoot,
-						stdio: 'pipe',
+					},
+				);
+			} else if (isRemoteBranch) {
+				await execAsync(
+					`git worktree add -b "${branchName}" "${worktreePath}" "${baseBranch}"`,
+					{
+						cwd: gitRoot,
 					},
 				);
 			} else {
@@ -138,11 +259,10 @@ export async function createWorktree() {
 					newBranchForWorktree = `${branchName}-${String(suffix) || 'wt'}-${counter}`;
 					counter++;
 				}
-				execSync(
+				await execAsync(
 					`git worktree add -b "${newBranchForWorktree}" "${worktreePath}" "${baseBranch}"`,
 					{
 						cwd: gitRoot,
-						stdio: 'pipe',
 					},
 				);
 			}
@@ -173,10 +293,10 @@ export async function createWorktree() {
 
 			try {
 				if (editorChoice === 'code') {
-					execSync(`code "${worktreePath}"`, {stdio: 'ignore'});
+					await execAsync(`code "${worktreePath}"`);
 				} else {
 					const editor = process.env.EDITOR || 'vim';
-					execSync(`${editor} "${worktreePath}"`, {stdio: 'inherit'});
+					await execAsync(`${editor} "${worktreePath}"`);
 				}
 				s2.stop('Editor opened!');
 			} catch (error) {
