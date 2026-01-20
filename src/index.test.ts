@@ -1,48 +1,44 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { Command } from 'commander';
 
 describe('CLI Integration', () => {
   it('should parse and execute commands', () => {
     const program = new Command();
-    
+
     program
-      .name('gwtree')
+      .name('gwt')
       .description('Git worktree manager for parallel development')
-      .version('1.0.0', '-v, --version', 'Output the version number')
+      .version('2.0.0', '-v, --version', 'Output the version number')
       .helpOption('-h, --help', 'Display help for command');
 
-    expect(program.name()).toBe('gwtree');
+    expect(program.name()).toBe('gwt');
     expect(program.description()).toBe('Git worktree manager for parallel development');
   });
 
-  it('should have correct command structure', () => {
+  it('should have correct command structure with new commands', () => {
     const program = new Command();
-    
-    program
-      .command('create', { isDefault: true })
-      .description('Create a new git worktree');
 
-    program
-      .command('list')
-      .alias('ls')
-      .description('List all git worktrees');
-
-    program
-      .command('remove')
-      .alias('rm')
-      .description('Remove a git worktree');
+    program.command('rm').alias('remove').description('Remove worktrees for current repo');
+    program.command('ls').alias('list').description('List worktrees for current repo');
+    program.command('status').alias('st').description('Show status of all worktrees');
+    program.command('clean').alias('c').description('Remove merged worktrees');
+    program.command('merge').alias('m').description('Merge worktree branch to main');
+    program.command('config').description('Open config file');
 
     const commands = program.commands;
-    expect(commands.length).toBe(3);
-    expect(commands[0].name()).toBe('create');
-    expect(commands[1].name()).toBe('list');
-    expect(commands[2].name()).toBe('remove');
+    expect(commands.length).toBe(6);
+    expect(commands.map(c => c.name())).toContain('rm');
+    expect(commands.map(c => c.name())).toContain('ls');
+    expect(commands.map(c => c.name())).toContain('status');
+    expect(commands.map(c => c.name())).toContain('clean');
+    expect(commands.map(c => c.name())).toContain('merge');
+    expect(commands.map(c => c.name())).toContain('config');
   });
 
   it('should configure version option', () => {
     const program = new Command();
-    program.version('1.0.0', '-v, --version', 'Output the version number');
-    
+    program.version('2.0.0', '-v, --version', 'Output the version number');
+
     const versionOption = program.options.find(opt => opt.short === '-v');
     expect(versionOption).toBeDefined();
     expect(versionOption?.long).toBe('--version');
@@ -51,30 +47,86 @@ describe('CLI Integration', () => {
   it('should configure help option', () => {
     const program = new Command();
     program.helpOption('-h, --help', 'Display help for command');
-    
+
     expect(program.helpInformation()).toContain('-h, --help');
   });
 
   it('should register list command with ls alias', () => {
     const program = new Command();
-    const listCmd = program.command('list').alias('ls');
-    
-    expect(listCmd.name()).toBe('list');
-    expect(listCmd.aliases()).toContain('ls');
+    const listCmd = program.command('ls').alias('list');
+
+    expect(listCmd.name()).toBe('ls');
+    expect(listCmd.aliases()).toContain('list');
   });
 
-  it('should register remove command with rm alias', () => {
+  it('should register status command with st alias', () => {
     const program = new Command();
-    const removeCmd = program.command('remove').alias('rm');
-    
-    expect(removeCmd.name()).toBe('remove');
-    expect(removeCmd.aliases()).toContain('rm');
+    const statusCmd = program.command('status').alias('st');
+
+    expect(statusCmd.name()).toBe('status');
+    expect(statusCmd.aliases()).toContain('st');
   });
 
-  it('should set create as default command', () => {
+  it('should register rm command with remove alias', () => {
     const program = new Command();
-    const createCmd = program.command('create', { isDefault: true });
-    
-    expect(createCmd.name()).toBe('create');
+    const rmCmd = program.command('rm').alias('remove');
+
+    expect(rmCmd.name()).toBe('rm');
+    expect(rmCmd.aliases()).toContain('remove');
+  });
+
+  it('should register clean command with c alias', () => {
+    const program = new Command();
+    const cleanCmd = program.command('clean').alias('c');
+
+    expect(cleanCmd.name()).toBe('clean');
+    expect(cleanCmd.aliases()).toContain('c');
+  });
+
+  it('should register merge command with m alias', () => {
+    const program = new Command();
+    const mergeCmd = program.command('merge').alias('m');
+
+    expect(mergeCmd.name()).toBe('merge');
+    expect(mergeCmd.aliases()).toContain('m');
+  });
+
+  it('should support variadic names argument for batch creation', () => {
+    const program = new Command();
+    program.argument('[names...]', 'Name(s) for worktree and branch');
+
+    expect(program.registeredArguments.length).toBe(1);
+    expect(program.registeredArguments[0].variadic).toBe(true);
+  });
+
+  it('should support -y/--yes flag for fast mode', () => {
+    const program = new Command();
+    program.option('-y, --yes', 'Use saved defaults, skip prompts');
+
+    const yesOption = program.options.find(opt => opt.short === '-y');
+    expect(yesOption).toBeDefined();
+    expect(yesOption?.long).toBe('--yes');
+  });
+
+  it('should support --all flag for clean command', () => {
+    const program = new Command();
+    const cleanCmd = program
+      .command('clean')
+      .option('-a, --all', 'Remove all worktrees');
+
+    const allOption = cleanCmd.options.find(opt => opt.short === '-a');
+    expect(allOption).toBeDefined();
+    expect(allOption?.long).toBe('--all');
+  });
+
+  it('should support merge command with required name argument', () => {
+    const program = new Command();
+    const mergeCmd = program
+      .command('merge <name>')
+      .description('Merge worktree branch to main');
+
+    expect(mergeCmd.name()).toBe('merge');
+    expect(mergeCmd.registeredArguments.length).toBe(1);
+    expect(mergeCmd.registeredArguments[0].required).toBe(true);
   });
 });

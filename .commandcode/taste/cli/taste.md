@@ -16,5 +16,12 @@
 - Use simple, low cognitive load language for CLI prompts and questions - keep prompts concise (e.g., "Branch:" instead of "How would you like to set up the worktree?"). Confidence: 0.90
 - Use sindresorhus/conf for managing user-customizable CLI defaults and configuration. Confidence: 0.85
 - For complex naming inputs, default to quick editing mode (show prefix, edit suffix only) with option to press ESC and switch to full name customization - avoid upfront mode selection prompts. Confidence: 0.85
+- For worktree creation, `gwt [name]` creates worktree named `{repo}-{name}` with branch `{name}`. In interactive mode, prompt "Worktree & branch name:" and allow ESC to set worktree and branch names separately. Confidence: 0.90
 - Prefer npm packages from ahmadawais, sindresorhus when available for CLI projects. Confidence: 0.95
 - Use interactive selection lists instead of static console output for displaying and managing items - allow up/down navigation, search, and actions on selected items. Confidence: 0.85
+- Design CLI management commands (list, remove) to work globally from anywhere using a global config file to track managed items, rather than requiring the user to be in a specific directory. Confidence: 0.70
+- For CLI naming/output generation, always prompt for name confirmation even when arguments are provided - use {repo}-{branch} as default value but let user edit. Confidence: 0.70
+- Error messages about file/directory conflicts should include the full absolute path for easier debugging and deletion. Confidence: 0.70
+- Use chalk.green() to highlight important names (like worktree names, branch names) in CLI prompts. Confidence: 0.65
+- For error/failure confirmation prompts, default to yes (initialValue: true) to continue rather than blocking. Confidence: 0.70
+- For local-only git repos (no remote), skip pull prompts entirely. Confidence: 0.65

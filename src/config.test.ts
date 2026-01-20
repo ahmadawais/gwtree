@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { getConfig, setConfig, resetConfig, config } from './config.js';
+import { getConfig, setConfig, resetConfig, config, getAllWorktrees, addWorktreeRecord, removeWorktreeRecord, getWorktreeRecord, globalStore, getGlobalStorePath, getConfigPath } from './config.js';
 
 describe('config', () => {
   beforeEach(() => {
@@ -14,65 +14,63 @@ describe('config', () => {
     it('should return default configuration', () => {
       const cfg = getConfig();
       expect(cfg).toEqual({
-        defaultBranchChoice: 'current',
-        defaultSuffix: '1',
-        defaultOpenEditor: true,
-        defaultEditor: 'code',
-        namePattern: '{repo}-{branch}-wt-{suffix}'
+        editor: 'code',
+        installDeps: true,
+        lastPm: null
       });
     });
 
     it('should return updated configuration after setConfig', () => {
-      setConfig('defaultSuffix', 'test');
+      setConfig('editor', 'cursor');
       const cfg = getConfig();
-      expect(cfg.defaultSuffix).toBe('test');
+      expect(cfg.editor).toBe('cursor');
     });
   });
 
   describe('setConfig', () => {
-    it('should update defaultBranchChoice', () => {
-      setConfig('defaultBranchChoice', 'new');
-      expect(getConfig().defaultBranchChoice).toBe('new');
+    it('should update editor', () => {
+      setConfig('editor', 'cursor');
+      expect(getConfig().editor).toBe('cursor');
     });
 
-    it('should update defaultSuffix', () => {
-      setConfig('defaultSuffix', 'custom');
-      expect(getConfig().defaultSuffix).toBe('custom');
+    it('should update installDeps', () => {
+      setConfig('installDeps', false);
+      expect(getConfig().installDeps).toBe(false);
     });
 
-    it('should update defaultOpenEditor', () => {
-      setConfig('defaultOpenEditor', false);
-      expect(getConfig().defaultOpenEditor).toBe(false);
+    it('should update lastPm', () => {
+      setConfig('lastPm', 'pnpm');
+      expect(getConfig().lastPm).toBe('pnpm');
     });
 
-    it('should update defaultEditor', () => {
-      setConfig('defaultEditor', 'default');
-      expect(getConfig().defaultEditor).toBe('default');
+    it('should set editor to none', () => {
+      setConfig('editor', 'none');
+      expect(getConfig().editor).toBe('none');
     });
 
-    it('should update namePattern', () => {
-      setConfig('namePattern', '{repo}-{suffix}');
-      expect(getConfig().namePattern).toBe('{repo}-{suffix}');
+    it('should set editor to default', () => {
+      setConfig('editor', 'default');
+      expect(getConfig().editor).toBe('default');
     });
   });
 
   describe('resetConfig', () => {
     it('should reset configuration to defaults', () => {
-      setConfig('defaultSuffix', 'modified');
-      setConfig('defaultEditor', 'none');
+      setConfig('editor', 'none');
+      setConfig('installDeps', false);
       resetConfig();
       const cfg = getConfig();
-      expect(cfg.defaultSuffix).toBe('1');
-      expect(cfg.defaultEditor).toBe('code');
+      expect(cfg.editor).toBe('code');
+      expect(cfg.installDeps).toBe(true);
     });
 
     it('should clear all custom values', () => {
-      setConfig('defaultBranchChoice', 'new');
-      setConfig('namePattern', 'custom-pattern');
+      setConfig('editor', 'cursor');
+      setConfig('lastPm', 'yarn');
       resetConfig();
       const cfg = getConfig();
-      expect(cfg.defaultBranchChoice).toBe('current');
-      expect(cfg.namePattern).toBe('{repo}-{branch}-wt-{suffix}');
+      expect(cfg.editor).toBe('code');
+      expect(cfg.lastPm).toBe(null);
     });
   });
 
@@ -85,8 +83,139 @@ describe('config', () => {
     });
 
     it('should persist values across get/set operations', () => {
-      config.set('defaultSuffix', 'persistent');
-      expect(config.get('defaultSuffix')).toBe('persistent');
+      config.set('lastPm', 'bun');
+      expect(config.get('lastPm')).toBe('bun');
+    });
+  });
+});
+
+describe('worktree records', () => {
+  beforeEach(() => {
+    globalStore.set('worktrees', []);
+  });
+
+  afterEach(() => {
+    globalStore.set('worktrees', []);
+  });
+
+  describe('getAllWorktrees', () => {
+    it('should return empty array when no worktrees', () => {
+      const worktrees = getAllWorktrees();
+      expect(worktrees).toEqual([]);
+    });
+
+    it('should return all worktrees', () => {
+      const record = {
+        path: '/home/user/repo-feature',
+        branch: 'feature',
+        repoRoot: '/home/user/repo',
+        repoName: 'repo',
+        createdAt: '2025-01-01T00:00:00.000Z'
+      };
+      addWorktreeRecord(record);
+
+      const worktrees = getAllWorktrees();
+      expect(worktrees).toHaveLength(1);
+      expect(worktrees[0]).toEqual(record);
+    });
+  });
+
+  describe('addWorktreeRecord', () => {
+    it('should add a worktree record', () => {
+      const record = {
+        path: '/home/user/repo-feature',
+        branch: 'feature',
+        repoRoot: '/home/user/repo',
+        repoName: 'repo',
+        createdAt: '2025-01-01T00:00:00.000Z'
+      };
+
+      addWorktreeRecord(record);
+
+      const worktrees = getAllWorktrees();
+      expect(worktrees).toContainEqual(record);
+    });
+
+    it('should add multiple worktree records', () => {
+      const record1 = {
+        path: '/home/user/repo-feature1',
+        branch: 'feature1',
+        repoRoot: '/home/user/repo',
+        repoName: 'repo',
+        createdAt: '2025-01-01T00:00:00.000Z'
+      };
+      const record2 = {
+        path: '/home/user/repo-feature2',
+        branch: 'feature2',
+        repoRoot: '/home/user/repo',
+        repoName: 'repo',
+        createdAt: '2025-01-02T00:00:00.000Z'
+      };
+
+      addWorktreeRecord(record1);
+      addWorktreeRecord(record2);
+
+      const worktrees = getAllWorktrees();
+      expect(worktrees).toHaveLength(2);
+    });
+  });
+
+  describe('removeWorktreeRecord', () => {
+    it('should remove a worktree record by path', () => {
+      const record = {
+        path: '/home/user/repo-feature',
+        branch: 'feature',
+        repoRoot: '/home/user/repo',
+        repoName: 'repo',
+        createdAt: '2025-01-01T00:00:00.000Z'
+      };
+      addWorktreeRecord(record);
+
+      const removed = removeWorktreeRecord('/home/user/repo-feature');
+
+      expect(removed).toEqual(record);
+      expect(getAllWorktrees()).toHaveLength(0);
+    });
+
+    it('should return undefined when worktree not found', () => {
+      const removed = removeWorktreeRecord('/nonexistent/path');
+      expect(removed).toBeUndefined();
+    });
+  });
+
+  describe('getWorktreeRecord', () => {
+    it('should get a worktree record by path', () => {
+      const record = {
+        path: '/home/user/repo-feature',
+        branch: 'feature',
+        repoRoot: '/home/user/repo',
+        repoName: 'repo',
+        createdAt: '2025-01-01T00:00:00.000Z'
+      };
+      addWorktreeRecord(record);
+
+      const found = getWorktreeRecord('/home/user/repo-feature');
+      expect(found).toEqual(record);
+    });
+
+    it('should return undefined when worktree not found', () => {
+      const found = getWorktreeRecord('/nonexistent/path');
+      expect(found).toBeUndefined();
+    });
+  });
+
+  describe('getGlobalStorePath', () => {
+    it('should return the global store path', () => {
+      const path = getGlobalStorePath();
+      expect(path).toContain('.gwtree');
+    });
+  });
+
+  describe('getConfigPath', () => {
+    it('should return the config path', () => {
+      const path = getConfigPath();
+      expect(path).toBeDefined();
+      expect(typeof path).toBe('string');
     });
   });
 });
